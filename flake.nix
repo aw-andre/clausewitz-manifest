@@ -7,7 +7,7 @@
     let pkgs = nixpkgs.legacyPackages."x86_64-linux";
     in {
       devShells."x86_64-linux".default = pkgs.mkShell {
-        packages = with pkgs; [ gcc rustc clippy cargo tailwindcss ];
+        packages = with pkgs; [ gcc rustc clippy cargo pnpm tailwindcss ];
         shellHook = ''
           export RUST_BACKTRACE=1
         '';
