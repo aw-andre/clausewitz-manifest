@@ -15,6 +15,10 @@ async fn hello() -> impl IntoResponse {
     HtmlTemplate(template)
 }
 
+async fn test() -> &'static str {
+    "Using API"
+}
+
 #[derive(Template)]
 #[template(path = "hello.html")]
 struct HelloTemplate;
@@ -57,10 +61,15 @@ async fn main() -> anyhow::Result<()> {
     let assets_path = std::env::current_dir().unwrap();
     let port = 8000_u16;
     let addr = std::net::SocketAddr::from(([0, 0, 0, 0], port));
-    let router = Router::new().route("/", get(hello)).nest_service(
-        "/assets",
-        ServeDir::new(format!("{}/assets", assets_path.to_str().unwrap())),
-    );
+    let api_router = Router::new().route("/hello", get(test));
+
+    let router = Router::new()
+        .nest("/api", api_router)
+        .route("/", get(hello))
+        .nest_service(
+            "/assets",
+            ServeDir::new(format!("{}/assets", assets_path.to_str().unwrap())),
+        );
 
     info!("router initialized, now listening on port {}", port);
 
