@@ -35,7 +35,3 @@ pub async fn hello() -> impl IntoResponse {
     let template = HelloTemplate {};
     HtmlTemplate(template)
 }
-
-pub async fn test() -> &'static str {
-    "Using API"
-}
