@@ -3,7 +3,7 @@ use std::net::SocketAddr;
 use tower_http::services::ServeDir;
 use tracing::info;
 
-use crate::routes::{hello, test};
+use crate::templates::{hello, test};
 
 pub async fn run_server() -> anyhow::Result<()> {
     info!("initializing router...");

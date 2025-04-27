@@ -1,4 +1,3 @@
-mod routes;
 mod server;
 mod templates;
 
