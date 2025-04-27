@@ -28,10 +28,10 @@ where
 }
 
 #[derive(Template)]
-#[template(path = "hello.html")]
-pub struct HelloTemplate;
+#[template(path = "index.html")]
+pub struct IndexTemplate;
 
-pub async fn hello() -> impl IntoResponse {
-    let template = HelloTemplate {};
+pub async fn index() -> impl IntoResponse {
+    let template = IndexTemplate {};
     HtmlTemplate(template)
 }
