@@ -36,47 +36,7 @@ pub async fn index() -> impl IntoResponse {
     HtmlTemplate(template)
 }
 
-pub async fn eu3() -> impl IntoResponse {
-    let template = IndexTemplate {};
-    HtmlTemplate(template)
-}
-
-pub async fn eu4() -> impl IntoResponse {
-    let template = IndexTemplate {};
-    HtmlTemplate(template)
-}
-
-pub async fn ck2() -> impl IntoResponse {
-    let template = IndexTemplate {};
-    HtmlTemplate(template)
-}
-
-pub async fn ck3() -> impl IntoResponse {
-    let template = IndexTemplate {};
-    HtmlTemplate(template)
-}
-
-pub async fn hoi3() -> impl IntoResponse {
-    let template = IndexTemplate {};
-    HtmlTemplate(template)
-}
-
-pub async fn vic2() -> impl IntoResponse {
-    let template = IndexTemplate {};
-    HtmlTemplate(template)
-}
-
-pub async fn vic3() -> impl IntoResponse {
-    let template = IndexTemplate {};
-    HtmlTemplate(template)
-}
-
-pub async fn imperator() -> impl IntoResponse {
-    let template = IndexTemplate {};
-    HtmlTemplate(template)
-}
-
-pub async fn stellaris() -> impl IntoResponse {
+pub async fn modifier_tree(game: &'static str) -> impl IntoResponse {
     let template = IndexTemplate {};
     HtmlTemplate(template)
 }

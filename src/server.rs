@@ -14,15 +14,15 @@ pub async fn run_server() -> anyhow::Result<()> {
 
     let router = Router::new()
         .route("/", get(index))
-        .route("/eu3.html", get(eu3))
-        .route("/eu4.html", get(eu4))
-        .route("/ck2.html", get(ck2))
-        .route("/ck3.html", get(ck3))
-        .route("/hoi3.html", get(hoi3))
-        .route("/vic2.html", get(vic2))
-        .route("/vic3.html", get(vic3))
-        .route("/imperator.html", get(imperator))
-        .route("/stellaris.html", get(stellaris))
+        .route("/eu3.html", get(|| modifier_tree("eu3")))
+        .route("/eu4.html", get(|| modifier_tree("eu4")))
+        .route("/ck2.html", get(|| modifier_tree("ck2")))
+        .route("/ck3.html", get(|| modifier_tree("ck3")))
+        .route("/hoi3.html", get(|| modifier_tree("hoi3")))
+        .route("/vic2.html", get(|| modifier_tree("vic2")))
+        .route("/vic3.html", get(|| modifier_tree("vic3")))
+        .route("/imperator.html", get(|| modifier_tree("imperator")))
+        .route("/stellaris.html", get(|| modifier_tree("stellaris")))
         .nest_service(
             "/assets",
             ServeDir::new(format!("{}/assets", assets_path.to_str().unwrap())),
