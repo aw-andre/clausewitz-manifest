@@ -22,11 +22,7 @@ pub async fn run_server() -> anyhow::Result<()> {
         .route("/vic2.html", get(|| modifier_tree("vic2")))
         .route("/vic3.html", get(|| modifier_tree("vic3")))
         .route("/imperator.html", get(|| modifier_tree("imperator")))
-        .route("/stellaris.html", get(|| modifier_tree("stellaris")))
-        .nest_service(
-            "/assets",
-            ServeDir::new(format!("{}/assets", assets_path.to_str().unwrap())),
-        );
+        .route("/stellaris.html", get(|| modifier_tree("stellaris")));
 
     info!("router initialized, now listening on port {}", port);
 
