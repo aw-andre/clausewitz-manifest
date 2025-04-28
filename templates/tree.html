@@ -34,7 +34,7 @@
   <body>
     {% if valid == true %}
     <h1>Modifier: {{ game }}</h1>
-      <form action="/modifier_tree" method="get" style="margin-bottom:1rem;">
+    <form action="/{{ game }}" method="get" style="margin-bottom:1rem;">
         <input
           type="text"
           name="key"
