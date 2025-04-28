@@ -26,26 +26,30 @@
 
   <body>
     <h1>Modifier: {{ game }}</h1>
-    <form action="/modifier_tree" method="get" style="margin-bottom:1rem;">
-      <input
-        type="text"
-        name="key"
-        value="{{ game }}"
-        placeholder="Search modifier…"
-        style="padding: 0.5rem; font-size: 1rem; width: 250px;"
-      />
-      <button type="submit" style="padding: 0.5rem; font-size: 1rem;">Search</button>
-    </form>
+    {% if valid == true %}
+      <form action="/modifier_tree" method="get" style="margin-bottom:1rem;">
+        <input
+          type="text"
+          name="key"
+          value="{{ game }}"
+          placeholder="Search modifier…"
+          style="padding: 0.5rem; font-size: 1rem; width: 250px;"
+        />
+        <button type="submit" style="padding: 0.5rem; font-size: 1rem;">Search</button>
+      </form>
 
-    {% for node in nodes %}
-    <div class="card">
-      <span
-        class="toggle"
-        hx-get="/{{ game }}/{{ node.primary_id }}"
-        hx-target="#node-{{ node.primary_id }}"
-        hx-swap="outerHTML"
-      >
-    </div>
-    {% endfor %}
+      {% for node in nodes %}
+      <div class="card">
+        <span
+          class="toggle"
+          hx-get="/{{ game }}/{{ node.primary_id }}"
+          hx-target="#node-{{ node.primary_id }}"
+          hx-swap="outerHTML"
+        >
+      </div>
+      {% endfor %}
+    {% else %}
+      <h1>Game does not have a modifier tree: {{ game }}</h1>
+    {% endif %}
   </body>
 </html>

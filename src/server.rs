@@ -14,15 +14,7 @@ pub async fn run_server() -> anyhow::Result<()> {
 
     let router = Router::new()
         .route("/", get(index))
-        .route("/eu3", get(|| modifier_tree("eu3")))
-        .route("/eu4", get(|| modifier_tree("eu4")))
-        .route("/ck2", get(|| modifier_tree("ck2")))
-        .route("/ck3", get(|| modifier_tree("ck3")))
-        .route("/hoi3", get(|| modifier_tree("hoi3")))
-        .route("/vic2", get(|| modifier_tree("vic2")))
-        .route("/vic3", get(|| modifier_tree("vic3")))
-        .route("/imperator", get(|| modifier_tree("imperator")))
-        .route("/stellaris", get(|| modifier_tree("stellaris")));
+        .route("/{game}", get(modifier_tree));
 
     info!("router initialized, now listening on port {}", port);
 

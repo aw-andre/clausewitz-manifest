@@ -1,9 +1,10 @@
 use askama::Template;
 use axum::{
+    extract::{Path, Query},
     http::StatusCode,
     response::{Html, IntoResponse, Response},
 };
-use tracing::info;
+use std::collections::HashMap;
 
 /// A wrapper type that we'll use to encapsulate HTML parsed by askama into valid HTML for axum to serve.
 pub struct HtmlTemplate<T>(pub T);
@@ -49,7 +50,8 @@ pub struct Node {
 #[derive(Template)]
 #[template(path = "tree.html")]
 pub struct TreeTemplate {
-    pub game: &'static str,
+    pub valid: bool,
+    pub game: String,
     pub nodes: Vec<Node>,
 }
 
@@ -71,9 +73,13 @@ pub struct OneshotNodeTemplate {
     pub contents: Node,
 }
 
-pub async fn modifier_tree(game: &'static str) -> impl IntoResponse {
-    info!("printing modifier_tree");
+pub async fn modifier_tree(Path(game): Path<String>) -> impl IntoResponse {
     let template = TreeTemplate {
+        valid: match game.as_str() {
+            "eu3" | "eu4" | "ck2" | "ck3" | "hoi3" | "vic2" | "vic3" | "imperator"
+            | "stellaris" => true,
+            _ => false,
+        },
         game,
         nodes: vec![],
     };
