@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Modifier Tree: {{ game }}</title>
+    <title>{{ game }} Modifier Tree</title>
     <script src="https://unpkg.com/htmx.org@2.0.0"></script>
     <style>
       body {
@@ -33,7 +33,7 @@
 
   <body>
     {% if valid == true %}
-    <h1>Modifier: {{ game }}</h1>
+    <h1>{{ game }} Modifier Tree</h1>
     <form action="/{{ game }}" method="get" style="margin-bottom:1rem;">
         <input
           type="text"

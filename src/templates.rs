@@ -75,11 +75,10 @@ pub struct OneshotNodeTemplate {
 
 pub async fn modifier_tree(Path(game): Path<String>) -> impl IntoResponse {
     let template = TreeTemplate {
-        valid: match game.as_str() {
-            "eu3" | "eu4" | "ck2" | "ck3" | "hoi3" | "vic2" | "vic3" | "imperator"
-            | "stellaris" => true,
-            _ => false,
-        },
+        valid: matches!(
+            game.as_str(),
+            "CK2" | "CK3" | "EU3" | "EU4" | "HoI3" | "Imperator" | "Stellaris" | "Vic2" | "Vic3"
+        ),
         game,
         nodes: vec![],
     };
