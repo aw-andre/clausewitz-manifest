@@ -6,6 +6,13 @@
     <title>Modifier Tree: {{ game }}</title>
     <script src="https://unpkg.com/htmx.org@2.0.0"></script>
     <style>
+      body {
+        font-family: sans-serif;
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+      }
+
       .card {
         border-left: 2px solid #ccc;
         padding-left: 8px;
@@ -25,13 +32,12 @@
   </head>
 
   <body>
-    <h1>Modifier: {{ game }}</h1>
     {% if valid == true %}
+    <h1>Modifier: {{ game }}</h1>
       <form action="/modifier_tree" method="get" style="margin-bottom:1rem;">
         <input
           type="text"
           name="key"
-          value="{{ game }}"
           placeholder="Search modifier…"
           style="padding: 0.5rem; font-size: 1rem; width: 250px;"
         />
