@@ -1,0 +1,19 @@
+{# templates/node.html #}
+<div id="node-{{ id }}" class="node">
+  {% for child in children %}
+  <div class="card">
+    {% if child.has_children %}
+    <span
+      class="toggle"
+      hx-get="/tree/{{ child.id }}"
+      hx-target="#node-{{ child.id }}"
+      hx-swap="outerHTML"
+    >
+      [+] {{ child.label }}
+    </span>
+    <div id="node-{{ child.id }}" class="node"></div>
+    {% else %} • {{ child.label }}{% if child.value.is_some() %} ({{
+    child.value.unwrap() }}){% endif %} {% endif %}
+  </div>
+  {% endfor %}
+</div>

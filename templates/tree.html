@@ -1,0 +1,60 @@
+{# templates/modifier_tree.html #}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Modifier Tree: {{ modifier_key }}</title>
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+    <style>
+      .card {
+        border-left: 2px solid #ccc;
+        padding-left: 8px;
+        margin: 4px 0;
+      }
+
+      .toggle {
+        cursor: pointer;
+        color: #2d6cdf;
+        user-select: none;
+      }
+
+      .node {
+        margin-left: 20px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Modifier: {{ modifier_key }}</h1>
+    <form action="/modifier_tree" method="get" style="margin-bottom:1rem;">
+      <input
+        type="text"
+        name="key"
+        value="{{ modifier_key }}"
+        placeholder="Search modifier…"
+        style="padding: 0.5rem; font-size: 1rem; width: 250px;"
+      />
+      <button type="submit" style="padding: 0.5rem; font-size: 1rem;">Search</button>
+    </form>
+
+    {# Iterate each root‐to‐leaf path #} {% for path in paths %}
+    <div class="card">
+      {# Walk the path, rendering each node inline #} {% for (i, node) in
+      path.iter().enumerate() %} {# If not the leaf, show as a toggler that can
+      expand children #} {% if i + 1 < path.len() %}
+      <span
+        class="toggle"
+        hx-get="/tree/{{ node.id }}"
+        hx-target="#node-{{ node.id }}"
+        hx-swap="outerHTML"
+      >
+        [+] {{ node.label }}
+      </span>
+      <div id="node-{{ node.id }}" class="node"></div>
+      {% else %} {# Leaf modifier #} • {{ node.label }}{% if
+      node.value.is_some() %} ({{ node.value.unwrap() }}){% endif %} {% endif %}
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </body>
+</html>
