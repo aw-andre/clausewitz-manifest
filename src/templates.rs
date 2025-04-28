@@ -38,34 +38,44 @@ pub async fn index() -> impl IntoResponse {
 }
 
 pub struct Node {
-    pub id: String,
-    pub label: String,
-    pub value: Option<f64>,
-    /// true if this node *may* have children (for lazy loading)
-    pub has_children: bool,
+    pub primary_id: u32,
+    pub group_id: Option<u32>,
+    pub key: String,
+    pub value: Option<String>,
+    pub parent_id: Option<u32>,
+    pub child_id: Option<u32>,
 }
 
 #[derive(Template)]
 #[template(path = "tree.html")]
-pub struct ModifierTreeTemplate<'a> {
-    pub modifier_key: &'a str,
-    /// A Vec of “root paths” leading down to this modifier.
-    /// Each path is a Vec<Node> from the top parent → … → the leaf modifier.
-    pub paths: Vec<Vec<Node>>,
+pub struct TreeTemplate {
+    pub game: &'static str,
+    pub nodes: Vec<Node>,
 }
 
 #[derive(Template)]
-#[template(path = "node.html")]
-pub struct TreeNodeTemplate {
-    pub id: String,
-    pub children: Vec<Node>,
+#[template(path = "open-node.html")]
+pub struct OpenNodeTemplate {
+    pub contents: Node,
+}
+
+#[derive(Template)]
+#[template(path = "closed-node.html")]
+pub struct ClosedNodeTemplate {
+    pub contents: Node,
+}
+
+#[derive(Template)]
+#[template(path = "oneshot-node.html")]
+pub struct OneshotNodeTemplate {
+    pub contents: Node,
 }
 
 pub async fn modifier_tree(game: &'static str) -> impl IntoResponse {
     info!("printing modifier_tree");
-    let template = ModifierTreeTemplate {
-        modifier_key: "",
-        paths: vec![],
+    let template = TreeTemplate {
+        game,
+        nodes: vec![],
     };
     HtmlTemplate(template)
 }
