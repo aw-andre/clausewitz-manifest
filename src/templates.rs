@@ -48,10 +48,26 @@ pub struct Node {
 }
 
 #[derive(Template)]
-#[template(path = "tree.html")]
-pub struct TreeTemplate {
+#[template(path = "form.html")]
+pub struct FormTemplate {
     pub valid: bool,
     pub game: String,
+}
+
+pub async fn modifier_tree(Path(game): Path<String>) -> impl IntoResponse {
+    let template = FormTemplate {
+        valid: matches!(
+            game.as_str(),
+            "CK2" | "CK3" | "EU3" | "EU4" | "HoI3" | "Imperator" | "Stellaris" | "Vic2" | "Vic3"
+        ),
+        game,
+    };
+    HtmlTemplate(template)
+}
+
+#[derive(Template)]
+#[template(path = "tree.html")]
+pub struct TreeTemplate {
     pub nodes: Vec<Node>,
 }
 
@@ -71,16 +87,4 @@ pub struct ClosedNodeTemplate {
 #[template(path = "oneshot-node.html")]
 pub struct OneshotNodeTemplate {
     pub contents: Node,
-}
-
-pub async fn modifier_tree(Path(game): Path<String>) -> impl IntoResponse {
-    let template = TreeTemplate {
-        valid: matches!(
-            game.as_str(),
-            "CK2" | "CK3" | "EU3" | "EU4" | "HoI3" | "Imperator" | "Stellaris" | "Vic2" | "Vic3"
-        ),
-        game,
-        nodes: vec![],
-    };
-    HtmlTemplate(template)
 }
