@@ -1,6 +1,5 @@
 use axum::{Router, routing::get};
 use std::net::SocketAddr;
-use tower_http::services::ServeDir;
 use tracing::info;
 
 use crate::templates::*;
@@ -8,13 +7,12 @@ use crate::templates::*;
 pub async fn run_server() -> anyhow::Result<()> {
     info!("initializing router...");
 
-    let assets_path = std::env::current_dir().unwrap();
     let port = 8000_u16;
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
 
     let router = Router::new()
         .route("/", get(index))
-        .route("/{game}", get(modifier_tree));
+        .route("/form/{game}", get(form));
 
     info!("router initialized, now listening on port {}", port);
 

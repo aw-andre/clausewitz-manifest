@@ -4,7 +4,6 @@ use axum::{
     http::StatusCode,
     response::{Html, IntoResponse, Response},
 };
-use std::collections::HashMap;
 
 /// A wrapper type that we'll use to encapsulate HTML parsed by askama into valid HTML for axum to serve.
 pub struct HtmlTemplate<T>(pub T);
@@ -54,7 +53,7 @@ pub struct FormTemplate {
     pub game: String,
 }
 
-pub async fn modifier_tree(Path(game): Path<String>) -> impl IntoResponse {
+pub async fn form(Path(game): Path<String>) -> impl IntoResponse {
     let template = FormTemplate {
         valid: matches!(
             game.as_str(),
@@ -68,6 +67,7 @@ pub async fn modifier_tree(Path(game): Path<String>) -> impl IntoResponse {
 #[derive(Template)]
 #[template(path = "tree.html")]
 pub struct TreeTemplate {
+    pub game: String,
     pub nodes: Vec<Node>,
 }
 
