@@ -1,3 +1,5 @@
+use std::vec::IntoIter;
+
 use askama::Template;
 use axum::{
     extract::{Path, State},
@@ -91,83 +93,138 @@ pub async fn tree(
         search_term, search_type
     );
 
-    let mut matching_nodes = Vec::new();
+    let mut all_nodes = Vec::new();
     if search_type.contains(&"key".to_string()) {
         let rows = query!(
-            "SELECT * FROM gamefiles WHERE game = $1 AND key = $2",
+            "
+            WITH RECURSIVE parent_chain AS (
+                SELECT
+                    f.primary_id,
+                    f.key,
+                    f.value,
+                    f.parent_id,
+                    f.primary_id AS start_id,
+                    0 AS depth
+                FROM gamefiles f
+                WHERE f.game = $1 and f.key = $2
+
+                UNION ALL
+
+                SELECT
+                    f.primary_id,
+                    f.key,
+                    f.value,
+                    f.parent_id,
+                    pc.start_id,
+                    pc.depth - 1 AS depth
+                FROM gamefiles f
+                JOIN parent_chain pc
+                  ON f.primary_id = pc.parent_id
+            )
+
+            SELECT primary_id, key, value, parent_id
+            FROM parent_chain
+            ORDER BY start_id, depth
+        ",
             game,
             search_term
         )
         .fetch_all(&pool)
         .await
         .unwrap();
-
         for row in rows {
-            matching_nodes.push(Node {
-                primary_id: row.primary_id,
-                group_id: row.group_id,
-                key: row.key,
+            all_nodes.push(Node {
+                primary_id: row.primary_id.unwrap(),
+                group_id: None,
+                key: row.key.unwrap(),
                 value: row.value,
                 parent_id: row.parent_id,
-                child_id: row.child_id,
+                child_id: None,
                 displayed_child: None,
-            })
+            });
         }
     }
 
     if search_type.contains(&"value".to_string()) {
         let rows = query!(
-            "SELECT * FROM gamefiles WHERE game = $1 AND value = $2",
+            "
+            WITH RECURSIVE parent_chain AS (
+                SELECT
+                    f.primary_id,
+                    f.key,
+                    f.value,
+                    f.parent_id,
+                    f.primary_id AS start_id,
+                    0 AS depth
+                FROM gamefiles f
+                WHERE f.game = $1 and f.value = $2
+
+                UNION ALL
+
+                SELECT
+                    f.primary_id,
+                    f.key,
+                    f.value,
+                    f.parent_id,
+                    pc.start_id,
+                    pc.depth - 1 AS depth
+                FROM gamefiles f
+                JOIN parent_chain pc
+                  ON f.primary_id = pc.parent_id
+            )
+
+            SELECT primary_id, key, value, parent_id
+            FROM parent_chain
+            ORDER BY start_id, depth
+        ",
             game,
             search_term
         )
         .fetch_all(&pool)
         .await
         .unwrap();
-
         for row in rows {
-            matching_nodes.push(Node {
-                primary_id: row.primary_id,
-                group_id: row.group_id,
-                key: row.key,
+            all_nodes.push(Node {
+                primary_id: row.primary_id.unwrap(),
+                group_id: None,
+                key: row.key.unwrap(),
                 value: row.value,
                 parent_id: row.parent_id,
-                child_id: row.child_id,
+                child_id: None,
                 displayed_child: None,
-            })
+            });
         }
     }
 
-    // Create parent hierarchy
-    async fn make_parent_hierarchy(current: Node, pool: Pool<Postgres>) -> Node {
-        match current.parent_id {
-            Some(parent_id) => {
-                let parent_row = query!("SELECT * FROM gamefiles WHERE primary_id = $1", parent_id)
-                    .fetch_one(&pool)
-                    .await
-                    .unwrap();
-                let parent_node = Node {
-                    primary_id: parent_row.primary_id,
-                    group_id: parent_row.group_id,
-                    key: parent_row.key,
-                    value: parent_row.value,
-                    parent_id: parent_row.parent_id,
-                    child_id: parent_row.child_id,
-                    displayed_child: Some(Box::new(current)),
-                };
-                Box::pin(make_parent_hierarchy(parent_node, pool)).await
+    async fn make_parent_hierarchy(mut nodes: Vec<Node>) -> Vec<Node> {
+        let mut hierarchy = Vec::new();
+
+        let mut child = None;
+        let mut parent: Option<Node>;
+        loop {
+            parent = nodes.pop();
+            if parent.is_none() {
+                break;
             }
-            None => current,
+            let mut parent = parent.unwrap();
+            match parent.parent_id {
+                None => {
+                    hierarchy.push(parent);
+                    child = None;
+                }
+                Some(_) => {
+                    parent.displayed_child = child;
+                    child = Some(Box::new(parent));
+                }
+            }
         }
-    }
-    let mut displayed_nodes = Vec::new();
-    for node in matching_nodes {
-        displayed_nodes.push(make_parent_hierarchy(node, pool.clone()).await);
+
+        hierarchy
     }
 
     // Return template
     let template = TreeTemplate {
-        nodes: displayed_nodes,
+        nodes: make_parent_hierarchy(all_nodes).await,
     };
     HtmlTemplate(template)
 }
