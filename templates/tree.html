@@ -1,6 +1,6 @@
 {% for node in nodes %}
 <div class="card">
-  <span class="toggle" hx-get="/node/{{ game }}?primary_id={{ node.primary_id }}"
-    hx-target="#node-{{ node.primary_id }}" hx-swap="outerHTML">
+  <span class="toggle" hx-get="/node?primary_id={{ node.primary_id }}" hx-target="#node-{{ node.primary_id }}"
+    hx-swap="outerHTML">
 </div>
 {% endfor %}

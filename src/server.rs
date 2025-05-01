@@ -1,10 +1,12 @@
+use axum::extract::State;
 use axum::{Router, routing::get};
+use sqlx::{Pool, Postgres};
 use std::net::SocketAddr;
 use tracing::info;
 
 use crate::templates::*;
 
-pub async fn run_server() -> anyhow::Result<()> {
+pub async fn run_server(pool: Pool<Postgres>) -> anyhow::Result<()> {
     info!("initializing router...");
 
     let port = 8000_u16;
@@ -12,7 +14,9 @@ pub async fn run_server() -> anyhow::Result<()> {
 
     let router = Router::new()
         .route("/", get(index))
-        .route("/form/{game}", get(form));
+        .route("/form/{game}", get(form))
+        .route("/tree/{game}", get(tree))
+        .with_state(pool);
 
     info!("router initialized, now listening on port {}", port);
 
