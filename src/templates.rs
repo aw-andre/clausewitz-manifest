@@ -1,9 +1,10 @@
 use askama::Template;
 use axum::{
-    extract::{Path, Query, State},
+    extract::{Path, State},
     http::StatusCode,
     response::{Html, IntoResponse, Response},
 };
+use axum_extra::extract::Query;
 use serde::Deserialize;
 use sqlx::{Pool, Postgres, query};
 use tracing::info;
