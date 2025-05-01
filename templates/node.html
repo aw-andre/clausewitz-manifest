@@ -1,14 +1,8 @@
-{# templates/node.html #}
 <div id="node-{{ id }}" class="node">
   {% for child in children %}
   <div class="card">
     {% if child.has_children %}
-    <span
-      class="toggle"
-      hx-get="/tree/{{ child.id }}"
-      hx-target="#node-{{ child.id }}"
-      hx-swap="outerHTML"
-    >
+    <span class="toggle" hx-get="/tree/{{ child.id }}" hx-target="#node-{{ child.id }}" hx-swap="outerHTML">
       [+] {{ child.label }}
     </span>
     <div id="node-{{ child.id }}" class="node"></div>

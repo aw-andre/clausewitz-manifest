@@ -4,7 +4,9 @@ use axum::{
     http::StatusCode,
     response::{Html, IntoResponse, Response},
 };
+use serde::Deserialize;
 use sqlx::{Pool, Postgres, query};
+use tracing::info;
 
 /// A wrapper type that we'll use to encapsulate HTML parsed by askama into valid HTML for axum to serve.
 pub struct HtmlTemplate<T>(pub T);
@@ -55,13 +57,16 @@ pub struct FormTemplate {
 }
 
 pub async fn form(Path(game): Path<String>) -> impl IntoResponse {
+    info!("getting form for {}", game);
     let template = FormTemplate { game };
     HtmlTemplate(template)
 }
 
-#[derive(serde::Deserialize)]
+#[derive(Deserialize)]
 pub struct TreeParams {
     search_term: Option<String>,
+
+    #[serde(default)]
     search_type: Vec<String>,
 }
 
@@ -79,6 +84,11 @@ pub async fn tree(
     // Get matching rows
     let search_term = params.search_term.unwrap_or_default();
     let search_type = params.search_type;
+
+    info!(
+        "getting tree for search_term: {}, search_type: {:#?}",
+        search_term, search_type
+    );
 
     let mut matching_nodes = Vec::new();
     if search_type.contains(&"key".to_string()) {
@@ -159,8 +169,4 @@ pub async fn tree(
         nodes: displayed_nodes,
     };
     HtmlTemplate(template)
-}
-
-pub struct NodeTemplate {
-    pub contents: Node,
 }

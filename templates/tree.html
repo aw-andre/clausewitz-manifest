@@ -1,6 +1,82 @@
 {% for node in nodes %}
-<div class="card">
-  <span class="toggle" hx-get="/node?primary_id={{ node.primary_id }}" hx-target="#node-{{ node.primary_id }}"
-    hx-swap="outerHTML">
+<div class="tree-node" id="node-{{ node.primary_id }}">
+  <div class="node-header">
+    <span class="toggle {% if node.child_id.is_some() %}expandable{% endif %}" {% if node.child_id.is_some() %}
+      hx-get="/database?parent_id={{ node.primary_id }}" hx-target="#children-{{ node.primary_id }}" hx-swap="innerHTML"
+      hx-trigger="click" {% endif %}>
+      {% if node.child_id.is_some() %}[+]{% else %}[•]{% endif %}
+    </span>
+    <span class="node-key">{{ node.key }}</span>
+    {% if node.value.is_some() %}
+    <span class="node-value">{{ node.value.as_ref().unwrap() }}</span>
+    {% endif %}
+  </div>
+
+  <div id="children-{{ node.primary_id }}" class="node-children" style="display: none;">
+    {% if node.displayed_child.is_some() %}
+    {% let child = node.displayed_child.as_ref().unwrap() %}
+    <div class="child-node">
+      <div class="tree-node" id="node-{{ child.primary_id }}">
+        <div class="node-header">
+          <span class="toggle {% if child.child_id.is_some() %}expandable{% endif %}" {% if child.child_id.is_some() %}
+            hx-get="/database?parent_id={{ child.primary_id }}" hx-target="#children-{{ child.primary_id }}"
+            hx-swap="innerHTML" hx-trigger="click" {% endif %}>
+            {% if child.child_id.is_some() %}[+]{% else %}[•]{% endif %}
+          </span>
+          <span class="node-key">{{ child.key }}</span>
+          {% if child.value.is_some() %}
+          <span class="node-value">{{ child.value.as_ref().unwrap() }}</span>
+          {% endif %}
+        </div>
+
+        <div id="children-{{ child.primary_id }}" class="node-children" style="display: none;">
+          <!-- Child nodes will be loaded here via HTMX -->
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
 </div>
 {% endfor %}
+
+<style>
+  .tree-node {
+    margin-left: 5px;
+  }
+
+  .node-children {
+    margin-left: 20px;
+    border-left: 1px solid #ccc;
+    padding-left: 10px;
+  }
+
+  .toggle {
+    cursor: pointer;
+    user-select: none;
+    display: inline-block;
+    width: 20px;
+  }
+
+  .node-value {
+    margin-left: 5px;
+    color: #0066cc;
+  }
+</style>
+
+<script>
+  document.addEventListener('click', function (e) {
+    if (e.target.classList.contains('expandable') || e.target.closest('.expandable')) {
+      const toggle = e.target.classList.contains('expandable') ? e.target : e.target.closest('.expandable');
+      const nodeId = toggle.getAttribute('hx-target');
+      const childrenDiv = document.querySelector(nodeId);
+
+      if (childrenDiv.style.display === 'none') {
+        childrenDiv.style.display = 'block';
+        toggle.textContent = toggle.textContent.replace('[+]', '[-]');
+      } else {
+        childrenDiv.style.display = 'none';
+        toggle.textContent = toggle.textContent.replace('[-]', '[+]');
+      }
+    }
+  });
+</script>
