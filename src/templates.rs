@@ -43,6 +43,7 @@ pub async fn index() -> impl IntoResponse {
     HtmlTemplate(template)
 }
 
+#[derive(Debug)]
 pub struct Node {
     pub primary_id: i32,
     pub group_id: Option<i32>,
@@ -207,13 +208,13 @@ pub async fn tree(
                 break;
             }
             let mut parent = parent.unwrap();
+            parent.displayed_child = child;
             match parent.parent_id {
                 None => {
                     hierarchy.push(parent);
                     child = None;
                 }
                 Some(_) => {
-                    parent.displayed_child = child;
                     child = Some(Box::new(parent));
                 }
             }
@@ -222,9 +223,11 @@ pub async fn tree(
         hierarchy
     }
 
+    info!("preparing hierarchy");
     // Return template
     let template = TreeTemplate {
         nodes: make_parent_hierarchy(all_nodes).await,
     };
+    info!("preparing HTML");
     HtmlTemplate(template)
 }
