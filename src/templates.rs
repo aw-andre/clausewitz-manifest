@@ -96,20 +96,20 @@ pub async fn tree(
     );
 
     let mut all_nodes = Vec::new();
-    if search_type.contains(&"key".to_string()) {
+    if search_type.contains(&"value".to_string()) {
         let rows = query!(
             "
             WITH RECURSIVE parent_chain AS (
                 SELECT
-                    f.primary_id,
-                    f.key,
-                    f.value,
-                    f.parent_id,
-                    f.primary_id AS start_id,
-                    0 AS depth
+                f.primary_id,
+                f.key,
+                f.value,
+                f.parent_id,
+                f.primary_id AS start_id,
+                RANK() OVER (ORDER BY f.value::bytea ASC NULLS FIRST) AS rank,
+                0 AS depth
                 FROM gamefiles f
-                WHERE f.game = $1 and f.key = $2
-
+                WHERE f.game = $1 and f.value = $2
                 UNION ALL
 
                 SELECT
@@ -118,6 +118,7 @@ pub async fn tree(
                     f.value,
                     f.parent_id,
                     pc.start_id,
+                    pc.rank,
                     pc.depth - 1 AS depth
                 FROM gamefiles f
                 JOIN parent_chain pc
@@ -126,8 +127,8 @@ pub async fn tree(
 
             SELECT primary_id, key, value, parent_id
             FROM parent_chain
-            ORDER BY start_id, depth
-        ",
+            ORDER BY rank, start_id, depth
+            ",
             game,
             search_term
         )
@@ -147,20 +148,20 @@ pub async fn tree(
         }
     }
 
-    if search_type.contains(&"value".to_string()) {
+    if search_type.contains(&"key".to_string()) {
         let rows = query!(
             "
             WITH RECURSIVE parent_chain AS (
                 SELECT
-                    f.primary_id,
-                    f.key,
-                    f.value,
-                    f.parent_id,
-                    f.primary_id AS start_id,
-                    0 AS depth
+                f.primary_id,
+                f.key,
+                f.value,
+                f.parent_id,
+                f.primary_id AS start_id,
+                RANK() OVER (ORDER BY f.value::bytea ASC NULLS FIRST) AS rank,
+                0 AS depth
                 FROM gamefiles f
-                WHERE f.game = $1 and f.value = $2
-
+                WHERE f.game = $1 and f.key = $2
                 UNION ALL
 
                 SELECT
@@ -169,6 +170,7 @@ pub async fn tree(
                     f.value,
                     f.parent_id,
                     pc.start_id,
+                    pc.rank,
                     pc.depth - 1 AS depth
                 FROM gamefiles f
                 JOIN parent_chain pc
@@ -177,8 +179,8 @@ pub async fn tree(
 
             SELECT primary_id, key, value, parent_id
             FROM parent_chain
-            ORDER BY start_id, depth
-        ",
+            ORDER BY rank, start_id, depth
+            ",
             game,
             search_term
         )
