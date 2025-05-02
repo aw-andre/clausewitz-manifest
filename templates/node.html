@@ -1,13 +1,34 @@
-<div id="node-{{ id }}" class="node">
-  {% for child in children %}
-  <div class="card">
-    {% if child.has_children %}
-    <span class="toggle" hx-get="/tree/{{ child.id }}" hx-target="#node-{{ child.id }}" hx-swap="outerHTML">
-      [+] {{ child.label }}
+<div class="node" id="node-{{ primary_id }}">
+  <div class="node-header">
+    {% if value.is_none() %}
+    <!-- Node that can have children (expandable) -->
+    <span class="node-toggle collapsed" hx-get="/database?parent_id={{ primary_id }}"
+      hx-target="#children-{{ primary_id }}" hx-swap="innerHTML" hx-trigger="click">
+      [+]
     </span>
-    <div id="node-{{ child.id }}" class="node"></div>
-    {% else %} • {{ child.label }}{% if child.value.is_some() %} ({{
-    child.value.unwrap() }}){% endif %} {% endif %}
+    {% else %}
+    <!-- Leaf node with value (not expandable) -->
+    <span class="node-indicator">[•]</span>
+    {% endif %}
+
+    <span class="node-key">{{ key }}</span>
+    <span id="loading-{{ primary_id }}" class="htmx-indicator">Loading...</span>
   </div>
-  {% endfor %}
+
+  <!-- Always show displayed_child if it exists (with indentation) -->
+  {% if displayed_child.is_some() %}
+  <div class="displayed-child">
+    <div class="child-node">
+      {{ displayed_child.as_ref().unwrap().render()? }}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Show value if it exists (with indentation) -->
+  {% if value.is_some() %}
+  <div class="node-value" style="margin-left: 25px;"> {{ value.as_ref().unwrap() }}</div>
+  {% endif %}
+
+  <!-- Container for dynamically loaded children (initially empty) -->
+  <div class="node-children" id="children-{{ primary_id }}"></div>
 </div>

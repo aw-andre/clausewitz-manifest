@@ -43,7 +43,8 @@ pub async fn index() -> impl IntoResponse {
     HtmlTemplate(template)
 }
 
-#[derive(Debug)]
+#[derive(Debug, Template)]
+#[template(path = "node.html", ext = "html", escape = "none")]
 pub struct Node {
     pub primary_id: i32,
     pub group_id: Option<i32>,
