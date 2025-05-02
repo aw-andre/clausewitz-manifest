@@ -3,12 +3,14 @@
     {% if value.is_none() %}
     <!-- Node that can have children (expandable) -->
     <span class="node-toggle collapsed" hx-get="/database?parent_id={{ primary_id }}"
-      hx-target="#children-{{ primary_id }}" hx-swap="innerHTML" hx-trigger="click">
+      hx-target="#children-{{ primary_id }}" hx-swap="innerHTML" hx-trigger="click"
+      style="font-family: monospace; display: inline-block; width: 20px; text-align: center;">
       [+]
     </span>
     {% else %}
     <!-- Leaf node with value (not expandable) -->
-    <span class="node-indicator">[•]</span>
+    <span class="node-indicator"
+      style="font-family: monospace; display: inline-block; width: 20px; text-align: center;">[•]</span>
     {% endif %}
 
     <span class="node-key">{{ key }}</span>
@@ -31,4 +33,14 @@
 
   <!-- Container for dynamically loaded children (initially empty) -->
   <div class="node-children" id="children-{{ primary_id }}"></div>
+  <br>
 </div>
+
+<script>
+  document.addEventListener('click', function (e) {
+    if (e.target.classList.contains('node-toggle')) {
+      e.target.classList.toggle('collapsed');
+      e.target.textContent = e.target.classList.contains('collapsed') ? '[+]' : '[-]';
+    }
+  });
+</script>
