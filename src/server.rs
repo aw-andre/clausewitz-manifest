@@ -1,10 +1,11 @@
-use axum::extract::State;
 use axum::{Router, routing::get};
 use sqlx::{Pool, Postgres};
 use std::net::SocketAddr;
 use tracing::info;
 
-use crate::templates::*;
+use crate::templates::form::*;
+use crate::templates::index::*;
+use crate::templates::tree::*;
 
 pub async fn run_server(pool: Pool<Postgres>) -> anyhow::Result<()> {
     info!("initializing router...");
