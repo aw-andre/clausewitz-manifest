@@ -116,17 +116,18 @@ pub async fn tree(
     let query_str = format!(
         "
         WITH RECURSIVE parent_chain AS (
-            SELECT
-            f.primary_id,
-            f.key,
-            f.value,
-            f.parent_id,
-            f.primary_id AS start_id,
-            RANK() OVER (ORDER BY f.value::bytea, f.primary_id ASC NULLS FIRST) AS rank,
-            0 AS depth
-            FROM gamefiles f
-            WHERE f.game = $1 AND
-        {}
+            SELECT * FROM (
+                SELECT
+                f.primary_id,
+                f.key,
+                f.value,
+                f.parent_id,
+                f.primary_id AS start_id,
+                RANK() OVER (ORDER BY f.value::bytea, f.primary_id ASC NULLS FIRST) AS rank,
+                0 AS depth
+                FROM gamefiles f
+                WHERE f.game = $1 AND ({})
+            ) WHERE rank >= $3 AND rank < $4
             UNION ALL
 
             SELECT
@@ -144,7 +145,6 @@ pub async fn tree(
 
         SELECT primary_id, key, value, parent_id
         FROM parent_chain
-        WHERE rank >= $3 AND rank < $4
         ORDER BY rank, start_id, depth
         ",
         where_clause
