@@ -33,14 +33,4 @@
 
   <!-- Container for dynamically loaded children (initially empty) -->
   <div class="node-children" id="children-{{ primary_id }}"></div>
-  <br>
 </div>
-
-<script>
-  document.addEventListener('click', function (e) {
-    if (e.target.classList.contains('node-toggle')) {
-      e.target.classList.toggle('collapsed');
-      e.target.textContent = e.target.classList.contains('collapsed') ? '[+]' : '[-]';
-    }
-  });
-</script>
