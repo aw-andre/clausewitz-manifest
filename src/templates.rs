@@ -1,5 +1,3 @@
-use std::vec::IntoIter;
-
 use askama::Template;
 use axum::{
     extract::{Path, State},
@@ -9,6 +7,7 @@ use axum::{
 use axum_extra::extract::Query;
 use serde::Deserialize;
 use sqlx::{Pool, Postgres, Row, query};
+use std::collections::VecDeque;
 use tracing::info;
 
 const STEP: i64 = 10;
@@ -83,7 +82,7 @@ pub struct TreeParams {
 #[derive(Template)]
 #[template(path = "tree.html")]
 pub struct TreeTemplate {
-    pub nodes: Vec<Node>,
+    pub nodes: VecDeque<Node>,
 }
 
 pub async fn tree(
@@ -123,7 +122,7 @@ pub async fn tree(
                 f.value,
                 f.parent_id,
                 f.primary_id AS start_id,
-                RANK() OVER (ORDER BY f.value::bytea, f.primary_id ASC NULLS FIRST) AS rank,
+                RANK() OVER (ORDER BY f.value::bytea DESC NULLS LAST, f.primary_id) AS rank,
                 0 AS depth
                 FROM gamefiles f
                 WHERE f.game = $1 AND ({})
@@ -172,8 +171,8 @@ pub async fn tree(
         });
     }
 
-    async fn make_parent_hierarchy(mut nodes: Vec<Node>) -> Vec<Node> {
-        let mut hierarchy = Vec::new();
+    async fn make_parent_hierarchy(mut nodes: Vec<Node>) -> VecDeque<Node> {
+        let mut hierarchy = VecDeque::new();
 
         let mut child = None;
         let mut parent: Option<Node>;
@@ -186,7 +185,7 @@ pub async fn tree(
             parent.displayed_child = child;
             match parent.parent_id {
                 None => {
-                    hierarchy.push(parent);
+                    hierarchy.push_front(parent);
                     child = None;
                 }
                 Some(_) => {
