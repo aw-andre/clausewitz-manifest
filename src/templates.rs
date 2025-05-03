@@ -11,6 +11,8 @@ use serde::Deserialize;
 use sqlx::{Pool, Postgres, query};
 use tracing::info;
 
+const STEP: i64 = 10;
+
 /// A wrapper type that we'll use to encapsulate HTML parsed by askama into valid HTML for axum to serve.
 pub struct HtmlTemplate<T>(pub T);
 
@@ -74,8 +76,8 @@ pub struct TreeParams {
     #[serde(default)]
     search_type: Vec<String>,
 
-    start: u32,
-    end: u32,
+    start: i64,
+    end: i64,
 }
 
 #[derive(Template)]
@@ -111,7 +113,7 @@ pub async fn tree(
                 f.value,
                 f.parent_id,
                 f.primary_id AS start_id,
-                RANK() OVER (ORDER BY f.value::bytea ASC NULLS FIRST) AS rank,
+                RANK() OVER (ORDER BY f.value::bytea, f.primary_id ASC NULLS FIRST) AS rank,
                 0 AS depth
                 FROM gamefiles f
                 WHERE f.game = $1 and f.value = $2
@@ -132,10 +134,13 @@ pub async fn tree(
 
             SELECT primary_id, key, value, parent_id
             FROM parent_chain
+            WHERE rank >= $3 AND rank < $4
             ORDER BY rank, start_id, depth
             ",
             game,
-            search_term
+            search_term,
+            start,
+            start + STEP,
         )
         .fetch_all(&pool)
         .await
@@ -163,7 +168,7 @@ pub async fn tree(
                 f.value,
                 f.parent_id,
                 f.primary_id AS start_id,
-                RANK() OVER (ORDER BY f.value::bytea ASC NULLS FIRST) AS rank,
+                RANK() OVER (ORDER BY f.value::bytea, f.primary_id ASC NULLS FIRST) AS rank,
                 0 AS depth
                 FROM gamefiles f
                 WHERE f.game = $1 and f.key = $2
@@ -184,10 +189,13 @@ pub async fn tree(
 
             SELECT primary_id, key, value, parent_id
             FROM parent_chain
+            WHERE rank >= $3 AND rank < $4
             ORDER BY rank, start_id, depth
             ",
             game,
-            search_term
+            search_term,
+            start,
+            start + STEP,
         )
         .fetch_all(&pool)
         .await
