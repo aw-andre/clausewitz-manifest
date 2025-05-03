@@ -12,6 +12,7 @@ use tracing::info;
 #[derive(Deserialize)]
 pub struct ChildrenParams {
     parent_id: i64,
+    displayed_child_id: i64,
 }
 
 #[derive(Template)]
@@ -25,6 +26,7 @@ pub async fn children(
     State(pool): State<Pool<Postgres>>,
 ) -> impl IntoResponse {
     let parent_id = params.parent_id as i32;
+    let displayed_child_id = params.displayed_child_id as i32;
 
     info!("getting children for {}", parent_id);
 
@@ -32,9 +34,10 @@ pub async fn children(
         "
         SELECT primary_id, key, value, parent_id
         FROM gamefiles
-        WHERE parent_id = $1
+        WHERE parent_id = $1 AND primary_id != $2
         ",
-        parent_id
+        parent_id,
+        displayed_child_id
     )
     .fetch_all(&pool)
     .await
