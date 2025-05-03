@@ -8,7 +8,7 @@ use axum::{
 };
 use axum_extra::extract::Query;
 use serde::Deserialize;
-use sqlx::{Pool, Postgres, query};
+use sqlx::{Pool, Postgres, Row, query};
 use tracing::info;
 
 const STEP: i64 = 10;
@@ -103,114 +103,73 @@ pub async fn tree(
     );
 
     let mut all_nodes = Vec::new();
-    if search_type.contains(&"value".to_string()) {
-        let rows = query!(
-            "
-            WITH RECURSIVE parent_chain AS (
-                SELECT
-                f.primary_id,
-                f.key,
-                f.value,
-                f.parent_id,
-                f.primary_id AS start_id,
-                RANK() OVER (ORDER BY f.value::bytea, f.primary_id ASC NULLS FIRST) AS rank,
-                0 AS depth
-                FROM gamefiles f
-                WHERE f.game = $1 and f.value = $2
-                UNION ALL
+    let mut where_clause = "";
 
-                SELECT
-                    f.primary_id,
-                    f.key,
-                    f.value,
-                    f.parent_id,
-                    pc.start_id,
-                    pc.rank,
-                    pc.depth - 1 AS depth
-                FROM gamefiles f
-                JOIN parent_chain pc
-                  ON f.primary_id = pc.parent_id
-            )
-
-            SELECT primary_id, key, value, parent_id
-            FROM parent_chain
-            WHERE rank >= $3 AND rank < $4
-            ORDER BY rank, start_id, depth
-            ",
-            game,
-            search_term,
-            start,
-            start + STEP,
-        )
-        .fetch_all(&pool)
-        .await
-        .unwrap();
-        for row in rows {
-            all_nodes.push(Node {
-                primary_id: row.primary_id.unwrap(),
-                group_id: None,
-                key: row.key.unwrap(),
-                value: row.value,
-                parent_id: row.parent_id,
-                child_id: None,
-                displayed_child: None,
-            });
-        }
+    if search_type.contains(&"key".to_string()) && search_type.contains(&"value".to_string()) {
+        where_clause = "f.key = $2 OR f.value = $2";
+    } else if search_type.contains(&"key".to_string()) {
+        where_clause = "f.key = $2";
+    } else if search_type.contains(&"value".to_string()) {
+        where_clause = "f.value = $2";
     }
 
-    if search_type.contains(&"key".to_string()) {
-        let rows = query!(
-            "
-            WITH RECURSIVE parent_chain AS (
-                SELECT
+    let query_str = format!(
+        "
+        WITH RECURSIVE parent_chain AS (
+            SELECT
+            f.primary_id,
+            f.key,
+            f.value,
+            f.parent_id,
+            f.primary_id AS start_id,
+            RANK() OVER (ORDER BY f.value::bytea, f.primary_id ASC NULLS FIRST) AS rank,
+            0 AS depth
+            FROM gamefiles f
+            WHERE f.game = $1 AND
+        {}
+            UNION ALL
+
+            SELECT
                 f.primary_id,
                 f.key,
                 f.value,
                 f.parent_id,
-                f.primary_id AS start_id,
-                RANK() OVER (ORDER BY f.value::bytea, f.primary_id ASC NULLS FIRST) AS rank,
-                0 AS depth
-                FROM gamefiles f
-                WHERE f.game = $1 and f.key = $2
-                UNION ALL
-
-                SELECT
-                    f.primary_id,
-                    f.key,
-                    f.value,
-                    f.parent_id,
-                    pc.start_id,
-                    pc.rank,
-                    pc.depth - 1 AS depth
-                FROM gamefiles f
-                JOIN parent_chain pc
-                  ON f.primary_id = pc.parent_id
-            )
-
-            SELECT primary_id, key, value, parent_id
-            FROM parent_chain
-            WHERE rank >= $3 AND rank < $4
-            ORDER BY rank, start_id, depth
-            ",
-            game,
-            search_term,
-            start,
-            start + STEP,
+                pc.start_id,
+                pc.rank,
+                pc.depth - 1 AS depth
+            FROM gamefiles f
+            JOIN parent_chain pc
+              ON f.primary_id = pc.parent_id
         )
+
+        SELECT primary_id, key, value, parent_id
+        FROM parent_chain
+        WHERE rank >= $3 AND rank < $4
+        ORDER BY rank, start_id, depth
+        ",
+        where_clause
+    );
+
+    let rows = sqlx::query(&query_str)
+        .bind(game)
+        .bind(search_term)
+        .bind(start)
+        .bind(start + STEP)
         .fetch_all(&pool)
         .await
         .unwrap();
-        for row in rows {
-            all_nodes.push(Node {
-                primary_id: row.primary_id.unwrap(),
-                group_id: None,
-                key: row.key.unwrap(),
-                value: row.value,
-                parent_id: row.parent_id,
-                child_id: None,
-                displayed_child: None,
-            });
-        }
+
+    info!("pushing rows");
+    for row in rows {
+        all_nodes.push(Node {
+            primary_id: row.get::<i32, _>("primary_id"),
+            group_id: None,
+            key: row.get::<String, _>("key"),
+            value: row.get::<Option<String>, _>("value"),
+            parent_id: row.get::<Option<i32>, _>("parent_id"),
+            child_id: None,
+            displayed_child: None,
+        });
     }
 
     async fn make_parent_hierarchy(mut nodes: Vec<Node>) -> Vec<Node> {
