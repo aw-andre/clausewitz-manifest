@@ -12,7 +12,7 @@ use tracing::info;
 #[derive(Deserialize)]
 pub struct ChildrenParams {
     parent_id: i64,
-    displayed_child_id: i64,
+    displayed_child_id: Option<i64>,
 }
 
 #[derive(Template)]
@@ -26,34 +26,60 @@ pub async fn children(
     State(pool): State<Pool<Postgres>>,
 ) -> impl IntoResponse {
     let parent_id = params.parent_id as i32;
-    let displayed_child_id = params.displayed_child_id as i32;
+    let displayed_child_id = params.displayed_child_id;
 
     info!("getting children for {}", parent_id);
 
-    let rows = query!(
-        "
-        SELECT primary_id, key, value, parent_id
-        FROM gamefiles
-        WHERE parent_id = $1 AND primary_id != $2
-        ",
-        parent_id,
-        displayed_child_id
-    )
-    .fetch_all(&pool)
-    .await
-    .unwrap();
-
     let mut nodes = Vec::new();
-    for row in rows {
-        nodes.push(Node {
-            primary_id: row.primary_id,
-            group_id: None,
-            key: row.key,
-            value: row.value,
-            parent_id: row.parent_id,
-            child_id: None,
-            displayed_child: None,
-        });
+    if displayed_child_id.is_some() {
+        let rows = query!(
+            "
+            SELECT primary_id, key, value, parent_id
+            FROM gamefiles
+            WHERE parent_id = $1 AND primary_id != $2
+            ",
+            parent_id,
+            displayed_child_id.unwrap() as i32
+        )
+        .fetch_all(&pool)
+        .await
+        .unwrap();
+
+        for row in rows {
+            nodes.push(Node {
+                primary_id: row.primary_id,
+                group_id: None,
+                key: row.key,
+                value: row.value,
+                parent_id: row.parent_id,
+                child_id: None,
+                displayed_child: None,
+            });
+        }
+    } else {
+        let rows = query!(
+            "
+            SELECT primary_id, key, value, parent_id
+            FROM gamefiles
+            WHERE parent_id = $1
+            ",
+            parent_id,
+        )
+        .fetch_all(&pool)
+        .await
+        .unwrap();
+
+        for row in rows {
+            nodes.push(Node {
+                primary_id: row.primary_id,
+                group_id: None,
+                key: row.key,
+                value: row.value,
+                parent_id: row.parent_id,
+                child_id: None,
+                displayed_child: None,
+            });
+        }
     }
 
     let template = ChildrenTemplate { nodes };
