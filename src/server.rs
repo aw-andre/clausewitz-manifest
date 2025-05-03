@@ -3,6 +3,7 @@ use sqlx::{Pool, Postgres};
 use std::net::SocketAddr;
 use tracing::info;
 
+use crate::templates::children::*;
 use crate::templates::form::*;
 use crate::templates::index::*;
 use crate::templates::tree::*;
@@ -17,6 +18,7 @@ pub async fn run_server(pool: Pool<Postgres>) -> anyhow::Result<()> {
         .route("/", get(index))
         .route("/form/{game}", get(form))
         .route("/tree/{game}", get(tree))
+        .route("/children", get(children))
         .with_state(pool);
 
     info!("router initialized, now listening on port {}", port);

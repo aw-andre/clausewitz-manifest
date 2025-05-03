@@ -2,7 +2,7 @@
   <div class="node-header">
     {% if value.is_none() %}
     <!-- Node that can have children (expandable) -->
-    <span class="node-toggle collapsed" hx-get="/database?parent_id={{ primary_id }}"
+    <span class="node-toggle collapsed" hx-get="/children?parent_id={{ primary_id }}"
       hx-target="#children-{{ primary_id }}" hx-swap="innerHTML" hx-trigger="click"
       style="font-family: monospace; display: inline-block; width: 20px; text-align: center;">
       [+]

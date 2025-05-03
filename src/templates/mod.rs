@@ -3,6 +3,7 @@ use axum::{
     http::StatusCode,
     response::{Html, IntoResponse, Response},
 };
+pub mod children;
 pub mod form;
 pub mod index;
 pub mod tree;
