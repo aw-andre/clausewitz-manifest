@@ -1,60 +1,85 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>{{ game }} Modifier Tree</title>
-    <script src="https://unpkg.com/htmx.org@2.0.0"></script>
-    <style>
-      body {
-        font-family: sans-serif;
-        max-width: 800px;
-        margin: 2rem auto;
-        padding: 0 1rem;
+
+<head>
+  <meta charset="UTF-8" />
+  <title>{{ game }} Modifier Tree</title>
+  <script src="https://unpkg.com/htmx.org@2.0.0"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .card {
+      border-left: 2px solid #ccc;
+      padding-left: 8px;
+      margin: 4px 0;
+    }
+
+    .toggle {
+      cursor: pointer;
+      color: #2d6cdf;
+      user-select: none;
+    }
+
+    .node {
+      margin-left: 20px;
+    }
+  </style>
+  <script>
+    function navigatePage(direction) {
+      const startInput = document.getElementById('start-input');
+      const endInput = document.getElementById('end-input');
+      const startDisplay = document.getElementById('start-display');
+      const endDisplay = document.getElementById('end-display');
+
+      let start = parseInt(startInput.value);
+      let end = parseInt(endInput.value);
+
+      if (direction === 'next') {
+        start += 10;
+        end += 10;
+      } else if (direction === 'prev' && start > 1) {
+        start -= 10;
+        end -= 10;
       }
 
-      .card {
-        border-left: 2px solid #ccc;
-        padding-left: 8px;
-        margin: 4px 0;
-      }
+      startInput.value = start;
+      endInput.value = end;
+      startDisplay.textContent = start;
+      endDisplay.textContent = end;
 
-      .toggle {
-        cursor: pointer;
-        color: #2d6cdf;
-        user-select: none;
-      }
+      // Trigger HTMX request instead of form submission
+      htmx.trigger(document.querySelector('form'), 'submit');
+    }
+  </script>
 
-      .node {
-        margin-left: 20px;
-      }
-    </style>
-  </head>
+<body>
+  <h1>{{ game }} Modifier Tree</h1>
 
-  <body>
-    <h1>{{ game }} Modifier Tree</h1>
+  <form hx-get="/tree/{{ game }}" hx-target="#tree" hx-swap="innerHTML" hx-trigger="submit" style="margin-bottom: 1rem">
+    <input type="text" name="search_term" placeholder="Search modifier..."
+      hx-trigger="keyup[keyCode==13]->closest form:submit" autofocus />
+    <label>
+      <input type="checkbox" name="search_type" value="key" checked /> key
+    </label>
+    <label>
+      <input type="checkbox" name="search_type" value="value" checked /> value
+    </label>
+    <div style="margin: 8px 0">
+      <span>Showing results <span id="start-display">1</span> to
+        <span id="end-display">10</span></span>
+      <input type="hidden" name="start" id="start-input" value="1" />
+      <input type="hidden" name="end" id="end-input" value="10" />
+    </div>
+    <a href="#" class="previous" onclick="navigatePage('prev'); return false;">&laquo; Previous</a>
+    <a href="#" class="next" onclick="navigatePage('next'); return false;">Next &raquo;</a>
+  </form>
 
-    <form
-      hx-get="/tree/{{ game }}"
-      hx-target="#tree"
-      hx-swap="innerHTML"
-      hx-trigger="submit"
-      style="margin-bottom: 1rem"
-    >
-      <input
-        type="text"
-        name="search_term"
-        placeholder="Search modifier..."
-        hx-trigger="keyup[keyCode==13]->closest form:submit"
-        autofocus
-      />
-      <label>
-        <input type="checkbox" name="search_type" value="key" checked /> key
-      </label>
-      <label>
-        <input type="checkbox" name="search_type" value="value" checked /> value
-      </label>
-    </form>
+  <div id="tree"></div>
+</body>
 
-    <div id="tree"></div>
-  </body>
 </html>

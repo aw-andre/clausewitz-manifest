@@ -73,6 +73,9 @@ pub struct TreeParams {
 
     #[serde(default)]
     search_type: Vec<String>,
+
+    start: u32,
+    end: u32,
 }
 
 #[derive(Template)]
@@ -89,10 +92,12 @@ pub async fn tree(
     // Get matching rows
     let search_term = params.search_term.unwrap_or_default();
     let search_type = params.search_type;
+    let start = params.start;
+    let end = params.end;
 
     info!(
-        "getting tree for search_term: {}, search_type: {:#?}",
-        search_term, search_type
+        "getting tree for search_term: {}, search_type: {:#?}, start {}, end, {}",
+        search_term, search_type, start, end
     );
 
     let mut all_nodes = Vec::new();
