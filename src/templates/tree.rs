@@ -104,11 +104,9 @@ pub async fn tree(
     for row in rows {
         all_nodes.push(Node {
             primary_id: row.get::<i32, _>("primary_id"),
-            group_id: None,
             key: row.get::<String, _>("key"),
             value: row.get::<Option<String>, _>("value"),
             parent_id: row.get::<Option<i32>, _>("parent_id"),
-            child_id: None,
             displayed_child: None,
         });
     }

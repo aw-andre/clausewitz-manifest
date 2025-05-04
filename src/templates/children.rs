@@ -1,12 +1,9 @@
 use super::*;
 use askama::Template;
-use axum::{
-    extract::{Path, State},
-    response::IntoResponse,
-};
+use axum::{extract::State, response::IntoResponse};
 use axum_extra::extract::Query;
 use serde::Deserialize;
-use sqlx::{Pool, Postgres, Row, query};
+use sqlx::{Pool, Postgres, query};
 use tracing::info;
 
 #[derive(Deserialize)]
@@ -48,11 +45,9 @@ pub async fn children(
         for row in rows {
             nodes.push(Node {
                 primary_id: row.primary_id,
-                group_id: None,
                 key: row.key,
                 value: row.value,
                 parent_id: row.parent_id,
-                child_id: None,
                 displayed_child: None,
             });
         }
@@ -72,11 +67,9 @@ pub async fn children(
         for row in rows {
             nodes.push(Node {
                 primary_id: row.primary_id,
-                group_id: None,
                 key: row.key,
                 value: row.value,
                 parent_id: row.parent_id,
-                child_id: None,
                 displayed_child: None,
             });
         }

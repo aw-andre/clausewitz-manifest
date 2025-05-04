@@ -37,10 +37,8 @@ where
 #[template(path = "node.html", ext = "html", escape = "none")]
 pub struct Node {
     pub primary_id: i32,
-    pub group_id: Option<i32>,
     pub key: String,
     pub value: Option<String>,
     pub parent_id: Option<i32>,
-    pub child_id: Option<i32>,
     pub displayed_child: Option<Box<Node>>,
 }
