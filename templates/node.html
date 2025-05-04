@@ -4,8 +4,9 @@
     <!-- Node that can have children (expandable) -->
     <span class="node-toggle collapsed"
       hx-get="/children?parent_id={{ primary_id }}{% if displayed_child.is_some() %}&displayed_child_id={{ displayed_child.as_ref().unwrap().primary_id }}{% endif %}"
-      hx-target="#children-{{ primary_id }}" hx-swap="innerHTML" hx-trigger="click"
-      style="font-family: monospace; display: inline-block; width: 20px; text-align: center;">
+      hx-target="#children-{{ primary_id }}" hx-swap="innerHTML" hx-trigger="click[this.textContent.trim() === '[-]']"
+      hx-indicator="#loading-{{ primary_id }}" onclick="toggleNodeState(this)"
+      style="font-family: monospace; display: inline-block; width: 20px; text-align: center; cursor: pointer;">
       [+]
     </span>
     {% else %}
@@ -35,3 +36,14 @@
   <!-- Container for dynamically loaded children (initially empty) -->
   <div class="node-children" id="children-{{ primary_id }}"></div>
 </div>
+
+<script>
+  function toggleNodeState(element) {
+    if (element.innerText === "[+]") {
+      element.innerText = "[-]";
+    } else {
+      element.innerText = "[+]";
+      document.getElementById("children-" + element.closest(".node").id.replace("node-", "")).innerHTML = "";
+    }
+  }
+</script>
