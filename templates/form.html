@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>{{ game }} Modifier Tree</title>
+  <title>{{ game }} Manifest</title>
   <script src="https://unpkg.com/htmx.org@2.0.0"></script>
   <style>
     body {
@@ -58,7 +58,7 @@
   </script>
 
 <body>
-  <h1><a href="/">{{ game }} Modifier Tree</a></h1>
+  <h1><a href="/">{{ game }} Manifest</a></h1>
 
   <form hx-get="/tree/{{ game }}" hx-target="#tree" hx-swap="innerHTML" hx-trigger="submit" style="margin-bottom: 1rem">
     <input type="text" name="search_term" placeholder="Search modifier..."
