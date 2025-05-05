@@ -12,7 +12,7 @@ pub async fn run_server(pool: Pool<Postgres>) -> anyhow::Result<()> {
     info!("initializing router...");
 
     let port = 8000_u16;
-    let addr = SocketAddr::from(([0, 0, 0, 0], port));
+    let addr = SocketAddr::from(([127, 0, 0, 1], port));
 
     let router = Router::new()
         .route("/", get(index))
