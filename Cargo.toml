@@ -12,7 +12,5 @@ dotenvy = "0.15.7"
 serde = { version = "1.0.219", features = ["derive"] }
 sqlx = { version = "0.8.5", features = ["postgres", "runtime-tokio"] }
 tokio = { version = "1.44.2", features = ["full"] }
-tower = "0.5.2"
-tower-http = { version = "0.6.2", features = ["fs"] }
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
