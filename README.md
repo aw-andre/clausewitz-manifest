@@ -1,6 +1,6 @@
 # Clausewitz Manifest
 
-A simple, easily extensible web server for serving requests to Paradox Script databases made by [Clausewitz Parser][https://github.com/aw-andre/clausewitz-parser].
+A simple, easily extensible web server for serving requests to Paradox Script databases made by [Clausewitz Parser](https://github.com/aw-andre/clausewitz-parser).
 This server allows users to search for any key or value in Paradox Script gamefiles and get a list lexicographically sorted by value containing all of its "parents" and "siblings," allowing for quickly searching for instances of modifiers or event lists.
 
 ## Getting Started
@@ -15,10 +15,10 @@ This server allows users to search for any key or value in Paradox Script gamefi
 1. Clone this project locally.
 
 ```bash
-git clone https://github.com/aw-andre/clausewitz-parser
+git clone https://github.com/aw-andre/clausewitz-manifest
 ```
 
-2. Set your DATABASE_URL to be the same as the Postgres database used by Clausewitz Parser. This can be done in the shell, but the preferred way to do this is in a .env file in the project directory:
+2. Set your DATABASE_URL to be the same as the Postgres database used by [Clausewitz Parser](https://github.com/aw-andre/clausewitz-parser). This can be done in the shell, but the preferred way to do this is in a .env file in the project directory:
 
 ```bash
 DATABASE_URL='<url>'
@@ -44,3 +44,4 @@ If you can make any improvements to this project, please don't hesitate to send 
 Some areas of possible improvement include:
 
 - UI design
+- improved search (such as for whether or not a modifier is obtainable for a country)
