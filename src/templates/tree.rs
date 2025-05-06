@@ -66,9 +66,10 @@ pub async fn tree(
                 f.primary_id AS start_id,
                 RANK() OVER (ORDER BY f.value::bytea DESC NULLS LAST, f.primary_id) AS rank,
                 0 AS depth
-                FROM gamefiles f
+                FROM gamefiles AS f
                 WHERE f.game = $1 AND ({})
-            ) WHERE rank >= $3 AND rank < $4
+            ) AS base
+            WHERE base.rank >= $3 AND base.rank < $4
             UNION ALL
 
             SELECT
@@ -79,8 +80,8 @@ pub async fn tree(
                 pc.start_id,
                 pc.rank,
                 pc.depth - 1 AS depth
-            FROM gamefiles f
-            JOIN parent_chain pc
+            FROM gamefiles AS f
+            JOIN parent_chain AS pc
               ON f.primary_id = pc.parent_id
         )
 

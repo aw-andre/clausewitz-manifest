@@ -1,4 +1,4 @@
-.direnv
+.direnv/*
 node_modules
 /target
 .env
