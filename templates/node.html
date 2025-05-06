@@ -6,13 +6,13 @@
       hx-get="/children?parent_id={{ primary_id }}{% if displayed_child.is_some() %}&displayed_child_id={{ displayed_child.as_ref().unwrap().primary_id }}{% endif %}"
       hx-target="#children-{{ primary_id }}" hx-swap="innerHTML" hx-trigger="click[this.textContent.trim() === '[-]']"
       hx-indicator="#loading-{{ primary_id }}" onclick="toggleNodeState(this)"
-      style="font-family: monospace; display: inline-block; width: 20px; text-align: center; cursor: pointer;">
+      style="font-family: monospace; display: inline-block; width: 20px; text-align: center; cursor: pointer; margin-right: 3px;">
       [+]
     </span>
     {% else %}
     <!-- Leaf node with value (not expandable) -->
     <span class="node-indicator"
-      style="font-family: monospace; display: inline-block; width: 20px; text-align: center;">[•]</span>
+      style="font-family: monospace; display: inline-block; width: 20px; text-align: center; margin-right: 3px;">[•]</span>
     {% endif %}
 
     <span class="node-key">{{ key }}</span>
@@ -30,7 +30,7 @@
 
   <!-- Show value if it exists (with indentation) -->
   {% if value.is_some() %}
-  <div class="node-value" style="margin-left: 25px;"> {{ value.as_ref().unwrap() }}</div>
+  <div class="node-value" style="margin-left: 30px;"> {{ value.as_ref().unwrap() }}</div>
   {% endif %}
 
   <!-- Container for dynamically loaded children (initially empty) -->
