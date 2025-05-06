@@ -40,5 +40,6 @@ pub struct Node {
     pub key: String,
     pub value: Option<String>,
     pub parent_id: Option<i32>,
+    pub rank: i64,
     pub displayed_child: Option<Box<Node>>,
 }

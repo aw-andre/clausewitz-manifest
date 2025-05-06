@@ -9,6 +9,7 @@ use tracing::info;
 #[derive(Deserialize)]
 pub struct ChildrenParams {
     parent_id: i64,
+    rank: i64,
     displayed_child_id: Option<i64>,
 }
 
@@ -23,6 +24,7 @@ pub async fn children(
     State(pool): State<Pool<Postgres>>,
 ) -> impl IntoResponse {
     let parent_id = params.parent_id as i32;
+    let rank = params.rank;
     let displayed_child_id = params.displayed_child_id;
 
     info!("getting children for {}", parent_id);
@@ -48,6 +50,7 @@ pub async fn children(
                 key: row.key,
                 value: row.value,
                 parent_id: row.parent_id,
+                rank,
                 displayed_child: None,
             });
         }
@@ -70,6 +73,7 @@ pub async fn children(
                 key: row.key,
                 value: row.value,
                 parent_id: row.parent_id,
+                rank,
                 displayed_child: None,
             });
         }

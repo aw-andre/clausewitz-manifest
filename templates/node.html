@@ -1,11 +1,12 @@
-<div class="node" id="node-{{ primary_id }}">
+<div class="node" id="node-{{ primary_id }}-{{ rank }}">
   <div class="node-header">
     {% if value.is_none() %}
     <!-- Node that can have children (expandable) -->
     <span class="node-toggle collapsed"
-      hx-get="/children?parent_id={{ primary_id }}{% if displayed_child.is_some() %}&displayed_child_id={{ displayed_child.as_ref().unwrap().primary_id }}{% endif %}"
-      hx-target="#children-{{ primary_id }}" hx-swap="innerHTML" hx-trigger="click[this.textContent.trim() === '[-]']"
-      hx-indicator="#loading-{{ primary_id }}" onclick="toggleNodeState(this)"
+      hx-get="/children?parent_id={{ primary_id }}&rank={{ rank }}{% if displayed_child.is_some() %}&displayed_child_id={{ displayed_child.as_ref().unwrap().primary_id }}{% endif %}"
+      hx-target="#children-{{ primary_id }}-{{ rank }}" hx-swap="innerHTML"
+      hx-trigger="click[this.textContent.trim() === '[-]']" hx-indicator="#loading-{{ primary_id }}-{{ rank }}"
+      onclick="toggleNodeState(this)"
       style="font-family: monospace; display: inline-block; width: 20px; text-align: center; cursor: pointer; margin-right: 3px;">
       [+]
     </span>
@@ -16,7 +17,7 @@
     {% endif %}
 
     <span class="node-key">{{ key }}</span>
-    <span id="loading-{{ primary_id }}" class="htmx-indicator">Loading...</span>
+    <span id="loading-{{ primary_id }}-{{ rank }}" class="htmx-indicator">Loading...</span>
   </div>
 
   <!-- Always show displayed_child if it exists (with indentation) -->
@@ -34,7 +35,7 @@
   {% endif %}
 
   <!-- Container for dynamically loaded children (initially empty) -->
-  <div class="node-children" id="children-{{ primary_id }}"></div>
+  <div class="node-children" id="children-{{ primary_id }}-{{ rank }}"></div>
 </div>
 
 <script>

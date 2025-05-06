@@ -85,7 +85,7 @@ pub async fn tree(
               ON f.primary_id = pc.parent_id
         )
 
-        SELECT primary_id, key, value, parent_id
+        SELECT primary_id, key, value, parent_id, rank
         FROM parent_chain
         ORDER BY rank, start_id, depth
         ",
@@ -108,6 +108,7 @@ pub async fn tree(
             key: row.get::<String, _>("key"),
             value: row.get::<Option<String>, _>("value"),
             parent_id: row.get::<Option<i32>, _>("parent_id"),
+            rank: row.get::<i64, _>("rank"),
             displayed_child: None,
         });
     }
